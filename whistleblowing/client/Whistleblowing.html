@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Whistleblowing Service Test</title>
+		<link rel="stylesheet" href="https://www.cm-innovationlab.it/cm-innovationlab_style.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+
+    <body>
+		<h1>Whistleblowing flow</h1>
+
+		<fieldset id="firstField">
+			<legend><h3>[1] Request Client -> Server:</h3></legend>
+			First of all is necessary to send a request with POST method to server.
+			</br></br>
+			<div style="color: lightslategray; margin-left: 30px;">
+				{</br>
+				&emsp;"username": "marco.campominosi",</br>
+				&emsp;"password": "enjoy"</br>
+				}
+			</div>
+			</br>
+			<button onclick="sendPostRequest();return false">Try This!</button>
+			</br>
+		</fieldset>
+
+
+		</br>
+		
+		<fieldset id="secondField" hidden>
+			<legend><h3>[2] Answer Server -> Client:</h3></legend>
+			Server now sends back a JWT after verifying credentials.
+			</br></br>
+			<div style="color: lightslategray; margin-left: 30px;">
+				<div id="secondDiv"></div>
+			</div>
+			</br>
+			Now is possible to send a request with encryption.<br/>
+			For example we send: "This is a test!"<br/>
+			<button onclick="sendRequestWithJWT();return false">Try This!</button>
+			</br>
+		</fieldset>
+
+		
+		Visualizzare messaggio cryptato
+
+
+
+		</br></br>
+		
+		<small class="copyright">.:. Copyright &copy;2020-<script>document.write(new Date().getFullYear())</script>	CM-InnovationLab.it .:. All Rights Reserved .:.</small>
+    </body>
+
+
+
+
+
+
+
+	<script language="javascript">
+
+
+
+
+		function sendPostRequest(){
+			let myJSON = {username: "marco.campominosi", password: "enjoy"};
+					
+			var xhttp = new XMLHttpRequest();
+			var url = "http://127.0.0.1:5002/login";
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					const obj = JSON.parse(this.responseText);
+					document.getElementById("secondDiv").innerHTML = obj.content;
+					document.getElementById("secondField").removeAttribute("hidden");
+				}
+			}
+			xhttp.open("POST", url);
+			xhttp.setRequestHeader("Content-Type", "application/json");
+			xhttp.send(JSON.stringify(myJSON));
+		}
+
+
+
+
+		
+	</script>
+</html>

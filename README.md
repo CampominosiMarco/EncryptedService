@@ -46,4 +46,11 @@ py -3 .\test_enc_dec.py
 ```
 # Whistleblowing
 Now let's try to help who need to encrypt information or verify signature with some real cases.<br/>
+
+
+
+flask --app endPoint run --host=0.0.0.0 --port 5002
+
+
+
 https://pypi.org/project/requests-jwt/
