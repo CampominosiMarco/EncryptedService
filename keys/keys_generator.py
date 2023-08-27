@@ -1,6 +1,8 @@
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 
+from jwt import jwk_from_pem
+import json
 from properties_reader import *
 
 private_key = rsa.generate_private_key( #https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#rsa
@@ -31,3 +33,12 @@ private_key_file.close()
 public_key_file = open(getValue('Public_Key_Name') + ".pub", "w")
 public_key_file.write(pem_public_key.decode())
 public_key_file.close()
+
+dict_from_pub_pem = jwk_from_pem(pem_public_key).to_dict()
+dict_from_pub_pem["alg"] = "RS256"
+dict_from_pub_pem["use"] = "sig"
+dict_from_pub_pem["kid"] = "CM-InnovationLab.it-1"
+
+JSON_Web_Key_Set = open("jwks.json", "w")
+JSON_Web_Key_Set.write(json.dumps({"keys": [dict_from_pub_pem]}))
+JSON_Web_Key_Set.close()
