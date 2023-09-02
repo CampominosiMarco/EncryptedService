@@ -34,16 +34,8 @@ def test():
 
 @myEndPoint.route("/login", methods = ['POST'])
 def login():    #of course this is only a test :)
-
-
-errore lettura dizionario enon json
-
-
-    json_data = request.json()
+    json_data = request.get_json()
     if (json_data['username'] == "marco.campominosi" and json_data['password'] == "enjoy"):
-        
-
-        
         test_payload = {
                             'iss': 'https://www.cm-innovationlab.it:5002',
                             'sub': 'encryptionTest',
@@ -52,11 +44,7 @@ errore lettura dizionario enon json
                             'username': 'marco.campominosi',
                             'admin': True
                         }
-
-
         return {"content": getEncodedPayload(test_payload)}, 200
-
-    
     return {"error": "Login Error!"}, 401
 
 

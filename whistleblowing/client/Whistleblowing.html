@@ -70,12 +70,20 @@
 			xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
 					const obj = JSON.parse(this.responseText);
-					document.getElementById("secondDiv").innerHTML = obj.content;
+
+					visibleCode = ""
+					splitted = obj.content.match(/.{1,50}/g) ?? [];
+
+					for (i = 0; i < splitted.length; i++) {
+						visibleCode += splitted[i] + "<br/>";
+					}
+
+					document.getElementById("secondDiv").innerHTML = visibleCode;
 					document.getElementById("secondField").removeAttribute("hidden");
 				}
 			}
 			xhttp.open("POST", url);
-			xhttp.setRequestHeader("Content-Type", "application/json");
+			xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			xhttp.send(JSON.stringify(myJSON));
 		}
 
