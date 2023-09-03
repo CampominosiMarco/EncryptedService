@@ -10,43 +10,76 @@
 		<h1>Whistleblowing flow</h1>
 
 		<fieldset id="firstField">
-			<legend><h3>[1] Request Client -> Server:</h3></legend>
+			<legend><h3>[1] First Request Client -> Server:</h3></legend>
 			First of all is necessary to send a request with POST method to server.
-			</br></br>
+			<br/><br/>
 			<div style="color: lightslategray; margin-left: 30px;">
-				{</br>
-				&emsp;"username": "marco.campominosi",</br>
-				&emsp;"password": "enjoy"</br>
+				{<br/>
+				&emsp;"username": "marco.campominosi",<br/>
+				&emsp;"password": "enjoy"<br/>
 				}
 			</div>
-			</br>
+			<br/>
 			<button onclick="sendPostRequest();return false">Try This!</button>
-			</br>
+			<br/>
 		</fieldset>
 
-
-		</br>
+		<br/>
 		
 		<fieldset id="secondField" hidden>
 			<legend><h3>[2] Answer Server -> Client:</h3></legend>
-			Server now sends back a JWT after verifying credentials.
-			</br></br>
+			Server now sends back a JWT, after verifying credentials.
+			<br/><br/>
 			<div style="color: lightslategray; margin-left: 30px;">
 				<div id="secondDiv"></div>
 			</div>
-			</br>
-			Now is possible to send a request with encryption.<br/>
-			For example we send: "This is a test!"<br/>
-			<button onclick="sendRequestWithJWT();return false">Try This!</button>
-			</br>
+			<br/>
 		</fieldset>
 
+		<br/>
 		
+		<fieldset id="thirdField" hidden>
+			<legend><h3>[3] Request Client -> Server:</h3></legend>
+			Now is possible to send a request with JWT in authorization header.<br/>
+			For example we send this JSON request:
+			<br/><br/>
+			<div style="color: lightslategray; margin-left: 30px;">
+				{<br/>
+				&emsp;"message": "This is a test!",<br/>
+				}
+			</div>
+			<br/>
+			<button onclick="sendRequestWithJWT();return false">Try This!</button>
+			<br/>
+		</fieldset>
+		
+		<br/>
+		
+
+
+
 		Visualizzare messaggio cryptato
 
 
 
-		</br></br>
+
+
+
+		<fieldset id="fourthField" hidden>
+			<legend><h3>[4] Answer Server -> Client:</h3></legend>
+			Server now sends back a responce, after verifying Token.
+			<br/><br/>
+			<div style="color: lightslategray; margin-left: 30px;">
+				<div id="fourthDiv"></div>
+			</div>
+			<br/>
+			<br/>
+		</fieldset>
+
+
+
+
+		<br/><br/>
 		
 		<small class="copyright">.:. Copyright &copy;2020-<script>document.write(new Date().getFullYear())</script>	CM-InnovationLab.it .:. All Rights Reserved .:.</small>
     </body>
@@ -59,11 +92,13 @@
 
 	<script language="javascript">
 
-
-
+		let my_JWT
 
 		function sendPostRequest(){
 			let myJSON = {username: "marco.campominosi", password: "enjoy"};
+
+			document.getElementById("thirdField").setAttribute("hidden", "");
+			document.getElementById("fourthField").setAttribute("hidden", "");
 					
 			var xhttp = new XMLHttpRequest();
 			var url = "http://127.0.0.1:5002/login";
@@ -71,20 +106,65 @@
 				if (this.readyState == 4 && this.status == 200) {
 					const obj = JSON.parse(this.responseText);
 
+					my_JWT = obj.content.token;
+
 					visibleCode = ""
-					splitted = obj.content.match(/.{1,50}/g) ?? [];
+					splitted = obj.content.token.match(/.{1,50}/g) ?? [];
 
 					for (i = 0; i < splitted.length; i++) {
 						visibleCode += splitted[i] + "<br/>";
 					}
 
-					document.getElementById("secondDiv").innerHTML = visibleCode;
+					divOutput = "{<br/>&emsp;iss: " + obj.content.iss + ",<br/>" + 
+						"&emsp;iat: " + obj.content.iat + ",<br/>" + 
+						"&emsp;exp: " + obj.content.exp + ",<br/>" + 
+						"&emsp;sub: " + obj.content.sub + ",<br/>" + 
+						"&emsp;token: " + visibleCode + "}"
+								
+
+
+					document.getElementById("secondDiv").innerHTML = divOutput;
 					document.getElementById("secondField").removeAttribute("hidden");
+					document.getElementById("thirdField").removeAttribute("hidden");
 				}
 			}
 			xhttp.open("POST", url);
 			xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			xhttp.send(JSON.stringify(myJSON));
+		}
+
+
+
+
+
+
+
+
+		function sendRequestWithJWT(){
+			let myJSON = {message: "This is a test!"};
+
+			document.getElementById("fourthField").setAttribute("hidden", "");
+					
+			var xhttp = new XMLHttpRequest();
+			var url = "http://127.0.0.1:5002/message_receiver";
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					const obj = JSON.parse(this.responseText);
+
+					document.getElementById("thirdDiv").innerHTML = obj.content;
+					document.getElementById("thirdField").removeAttribute("hidden");
+					document.getElementById("fourthField").removeAttribute("hidden");
+				}
+			}
+			xhttp.open("POST", url);
+			xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			xhttp.setRequestHeader('Authorization', 'Bearer ' + my_JWT);
+
+
+//encrypt with public key
+
+			xhttp.send(JSON.stringify(myJSON));
+
 		}
 
 

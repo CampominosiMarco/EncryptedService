@@ -35,4 +35,4 @@ def decode_token(token, type = 0, verify = True):
             message = instance.decode(token, get_JWK_from_web_jwks_json(), verify, ["RS256"])
         return message
     except Exception as exception:
-        return "Exception: " + str(exception)
+        return {"Exception":  + "\"" + str(exception)+ "\""}
