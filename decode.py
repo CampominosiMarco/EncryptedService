@@ -26,6 +26,7 @@ def get_JWK_from_web_jwks_json():
 instance = JWT()
 
 def decode_token(token, type = 0, verify = True):
+    message = ""
     try:   
         if (type == 0):
             message = instance.decode(token, get_JWK_from_local_pub_file(), verify, ["RS256"])
@@ -33,6 +34,6 @@ def decode_token(token, type = 0, verify = True):
             message = instance.decode(token, get_JWK_from_web_pub_file(), verify, ["RS256"])
         elif (type == 2):
             message = instance.decode(token, get_JWK_from_web_jwks_json(), verify, ["RS256"])
-        return message
+        return {"Decoded Message": str(message)}
     except Exception as exception:
-        return {"Exception":  + "\"" + str(exception)+ "\""}
+        return {"Exception": str(exception)}

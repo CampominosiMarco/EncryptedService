@@ -37,10 +37,10 @@ def login():    #of course this is only a test :)
         token = getEncodedPayload({'exp': expiration, 'username': json_data['username'], 'admin': True})
         
         response_payload = {
-                            'iss': 'https://www.cm-innovationlab.it:5002',
+                            'iss': 'http://www.cm-innovationlab.it:5002',
                             'sub': 'encryptionTest',
-                            'iat': now,
-                            'exp': expiration,
+                            #'iat': now,
+                            #'exp': expiration,
                             'token': token
                         }
         return {"content": response_payload}, 200
@@ -60,7 +60,7 @@ def message_receiver():
 
 
 
-token_validation()
+    msg, code = token_validation(request.headers['Authorization'][7:])
 
 
 
@@ -73,27 +73,19 @@ token_validation()
 
 
     if (json_data['message'] != None):
-        test_payload = {
-                            'iss': 'https://www.cm-innovationlab.it:5002',
-                            'sub': 'encryptionTest',
-                            'iat': get_int_from_datetime(datetime.now(timezone.utc)),
-                            'exp': get_int_from_datetime(datetime.now(timezone.utc) + timedelta(minutes=30)),
-                            'username': 'marco.campominosi',
-                            'admin': True
-                        }
-        return {"content": getEncodedPayload(test_payload)}, 200
+
+        return {"content": msg}, code
     return {"error": "Message Error!"}, 401
 
 
 
-def token_validation():
+def token_validation(token_passed):
     try:
-        token_passed = request.headers['token']
         if token_passed != '' and token_passed != None:
-            data = decode_token(token_passed, 3)    #serve la dec con chiave privata
-            return myEndPoint.response_class(response=json.dumps(data), mimetype='application/json'),200
+            data = decode_token(token_passed, 2)    #serve la dec con chiave privata magari 3
+            return data, 200
         else:
-            return myEndPoint.response_class(response=json.dumps({"error" : "Token required!"}), mimetype='application/json'),401
+            return {"error" : "Token required!"} ,401
     except Exception as e:
-        return myEndPoint.response_class(response=json.dumps({"error" : "An error occured!"}), mimetype='application/json'),500
+        return {"error" : "An error occured!" + str(e)}, 500
 
