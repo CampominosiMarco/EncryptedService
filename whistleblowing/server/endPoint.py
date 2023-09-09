@@ -50,7 +50,7 @@ def login():    #of course this is only a test :)
 
 
 
-
+import numpy as np
 
 
 @myEndPoint.route("/message_receiver", methods = ['POST'])
@@ -72,10 +72,17 @@ def message_receiver():
     #prendere il tempo rimanente
 
 
-    if (json_data['message'] != None):
+    if (json_data['array'] != None):
 
-        return {"content": msg}, code
-    return {"error": "Message Error!"}, 401
+    #    print(np.asarray(list(x[1] for x in json_data['array'].items())))
+        arr = np.array(list(x[1] for x in json_data['array'].items()), dtype=np.uint8)
+
+
+
+       # array_view = arr.view(f'S{arr.shape[0]}')
+
+        return {"content": msg, "array_resp" : arr.tolist()}, code        #''.join(map(chr, arr))
+    return {"error": "Array Error!"}, 401
 
 
 
@@ -85,7 +92,7 @@ def token_validation(token_passed):
             data = decode_token(token_passed, 2)    #serve la dec con chiave privata magari 3
             return data, 200
         else:
-            return {"error" : "Token required!"} ,401
+            return {"error" : "Token required!"}, 401
     except Exception as e:
         return {"error" : "An error occured!" + str(e)}, 500
 
