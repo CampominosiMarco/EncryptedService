@@ -53,4 +53,20 @@ flask --app endPoint run --host=0.0.0.0 --port 5002
 
 
 
+
+https://nodejs.org/it
+npm install node-rsa
+
+
+Il codice che hai condiviso sembra essere corretto e segue la procedura corretta per cifrare i dati JSON con AES e firmarli digitalmente con RSA. Ecco una piccola spiegazione delle fasi principali:
+
+Genera una chiave RSA per la firma digitale e estrai la chiave pubblica RSA.
+Cifra l'username e la password utilizzando una chiave simmetrica AES e un vettore di inizializzazione casuale.
+Firma digitalmente i dati cifrati con la chiave privata RSA.
+Verifica la firma digitale utilizzando la chiave pubblica RSA.
+Se la firma è verificata con successo, decifra i dati cifrati con la chiave simmetrica AES per ottenere il JSON originale.
+
+
+
+
 https://pypi.org/project/requests-jwt/
