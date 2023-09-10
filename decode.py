@@ -1,17 +1,18 @@
 from jwt import JWT, jwk_from_dict, jwk_from_pem
 import httpx
 
+from keys.keys_path_reader import *
 from keys.properties_reader import *
 
 def get_JWK_from_local_pub_file():
-    with open('keys/'+ getValue('Public_Key_Name', 'keys/properties.properties') + '.pub', 'rb') as key_file:
+    with open(get_Public_Key_path(), 'rb') as key_file:
         signing_key = jwk_from_pem(key_file.read())
     #print("JSON from LOCAL pub file:")
     #print(signing_key.to_dict())
     return signing_key
 
 def get_JWK_from_web_pub_file():
-    url_response = httpx.get(url="https://www.cm-innovationlab.it/.well-known/" + getValue('Public_Key_Name', 'keys/properties.properties') + ".pub")
+    url_response = httpx.get(url="https://www.cm-innovationlab.it/.well-known/" + getValueFromProp('Public_Key_Name') + ".pub")
     signing_key = jwk_from_pem(url_response.content)
     #print("JSON from WEB pub file:")
     #print(signing_key.to_dict())

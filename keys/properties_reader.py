@@ -1,6 +1,11 @@
 from jproperties import Properties
+import os
 
-def getValue(key, file = 'properties.properties'):
+file_name = 'properties.properties'
+this_script_dir = os.path.dirname(os.path.abspath(__file__))    #Absolute Path of current script
+file_path = os.path.join(this_script_dir, file_name)            #Relative Path of file
+
+def getValueFromProp(key, file = file_path):
     
     current_properties = Properties()
     with open(file, 'rb') as read_prop:

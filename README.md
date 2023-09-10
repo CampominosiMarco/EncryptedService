@@ -19,6 +19,8 @@ The original source code was modified to read informations from a 'properties' f
 Also I added JSON Web Key Sets (JWKS) creation to verify JSON Web Token (JWT).
 * Please read [Request for Comments: 7517](https://datatracker.ietf.org/doc/html/rfc7517)
 
+For the last part of this project I added AES key to encrypt a message, this is important for later use case example.
+
 Run python script from 'keys' folder:
 ```bash
 py -3 .\keys_generator.py
@@ -28,7 +30,7 @@ Ok, now we have the keys. But what is JSON Web Token (JWT)? <br/>
 * Read [wikipedia.org: JWT](https://en.wikipedia.org/wiki/JSON_Web_Token)
 * Also visit this amazing page [jwt.io](https://jwt.io/)
 
-First of all python jwt project is needed, so install it:information and verify signature.
+First of all python jwt project is needed, so install it:
 * `pip install jwt`
 * Read more on [pypi.org: jwt](https://pypi.org/project/jwt/)
 
