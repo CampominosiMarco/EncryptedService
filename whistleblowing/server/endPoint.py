@@ -6,8 +6,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_int_from_datetime
 
-from scripts.encode import getEncodedPayload
-from scripts.decode import decode_token
+from encode import getEncodedPayload
+from decode import decode_token
 
 
 
@@ -34,7 +34,7 @@ def login():    #of course this is only a test :)
         now = get_int_from_datetime(datetime.now(timezone.utc))
         expiration = get_int_from_datetime(datetime.now(timezone.utc) + timedelta(minutes=30))
 
-        token = getEncodedPayload({'exp': expiration, 'username': json_data['username'], 'admin': True})
+        token = getEncodedPayload({'exp': expiration, 'username': json_data['username'], 'user_id': 123, 'admin': True})
         
         response_payload = {
                             'iss': 'http://www.cm-innovationlab.it:5002',
