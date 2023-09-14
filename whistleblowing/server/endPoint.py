@@ -6,6 +6,16 @@ import json
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_int_from_datetime
 
+import os
+import sys
+server_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(server_dir)
+super_parent_dir = os.path.dirname(parent_dir)
+
+sys.path.append(super_parent_dir)
+
+
+
 from encode import getEncodedPayload
 from decode import decode_token
 
