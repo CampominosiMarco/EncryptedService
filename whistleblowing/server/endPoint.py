@@ -26,9 +26,48 @@ def test():
 
 
 
+#from Crypto.Cipher import AES
+import base64
+
 @myEndPoint.route("/login", methods = ['POST'])
 def login():    #of course this is only a test :)
     json_data = request.get_json()
+
+
+
+
+
+    try:
+
+        byte_array = json_data['byte_array']
+        byte_array_string = json_data['byte_array_string']
+
+        # Decodifica la stringa cifrata dalla base64
+        ciphertext = base64.b64decode(byte_array_string)
+
+        print(ciphertext)
+
+
+        # Inizializza l'oggetto AES con la modalità ECB e la chiave segreta
+  #      cipher = AES.new(secret_key, AES.MODE_ECB)
+
+        # Decodifica il byte array utilizzando AES
+   #     decrypted_byte_array = cipher.decrypt(bytes(byte_array.values()))
+
+        # Restituisci il byte array decodificato come risposta
+   #     return jsonify({'decrypted_byte_array': decrypted_byte_array.decode('utf-8')})
+
+    except Exception as e:
+        pass
+       # return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
     if (json_data['username'] == "marco.campominosi" and json_data['password'] == "enjoy"):
 
         now = datetime.now(timezone.utc)
