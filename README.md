@@ -1,7 +1,7 @@
 # EncryptedService
 A way to encrypt your service...
 
-If you are new of cryptography read something on [wikipedia.org: Public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) but we can resume: "In a public-key encryption system, anyone with a public key can encrypt a message, yielding a ciphertext, but only those who know the corresponding private key can decrypt the ciphertext to obtain the original message" and viceversa.
+If you are new of cryptography read something on [wikipedia.org: Public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) but we can resume: "In a public-key encryption system, anyone with a public key can encrypt a message, yielding a ciphertext, but only those who know the corresponding private key can decrypt the ciphertext to obtain the original message".
 
 This [image about 'RS256 asymmetric algorithm'](https://global.discourse-cdn.com/auth0/original/3X/7/0/709aa9a1d6e7fb8944e525e956a34bb0d63554d7.png) explain easily what I try to obtain with this project:<br/>
 ![RS256 asymmetric algorithm](https://global.discourse-cdn.com/auth0/original/3X/7/0/709aa9a1d6e7fb8944e525e956a34bb0d63554d7.png)

@@ -1,4 +1,10 @@
 
+
+// Genera un vettore di inizializzazione (IV) casuale di 16 byte
+const iv = window.crypto.getRandomValues(new Uint8Array(16));
+
+
+
 let my_JWT
 
 function sendPostRequest(){
@@ -34,14 +40,14 @@ function sendPostRequest(){
             document.getElementById("secondField").removeAttribute("hidden");
             document.getElementById("thirdField").removeAttribute("hidden");
 
-            myEncrypt(myJSONMessage);
+            myAESEncrypt(myJSONMessage);
 
 
         }
     }
     xhttp.open("POST", url);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.send(JSON.stringify(myLoginJSON));
+    xhttp.send(JSON.stringify(myLoginJSON));  //JSON.stringify(myLoginJSON)
 }
 
 
@@ -71,7 +77,7 @@ function sendRequestWithJWT(){
     xhttp.setRequestHeader('Authorization', 'Bearer ' + my_JWT);
 
 
-//encrypt with public key
+//encrypt 
 
     xhttp.send(JSON.stringify(returnEncrypted));
 
@@ -92,7 +98,7 @@ function base64ToArrayBuffer(b64) {
     return byteArray;
 }
 
-function keyToArrayBuffer(key) {
+function keyRSAToArrayBuffer(key) {
     var b64Final = key.replace(/(?:\r\n|\r|\n)/g, "")
                         .replace('-----BEGIN PUBLIC KEY-----', '')
                         .replace('-----END PUBLIC KEY-----', '');
@@ -100,19 +106,23 @@ function keyToArrayBuffer(key) {
     return base64ToArrayBuffer(b64Final);
 }
 
+function keyAESToArrayBuffer(key) {
+    var b64Final = key.replace(/-/g, '+').replace(/_/g, '/');
 
+    return base64ToArrayBuffer(b64Final);
+}
 
 
 let cryptoKey
 
 // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey
 
-fetch("../server/scripts/keys/cm-innovationlab.it_public_.pub")
+fetch("../../keys/cm-innovationlab.it_public.pub")
     .then((res) => res.text())
     .then((text) => {
         window.crypto.subtle.importKey(
             "spki",
-            keyToArrayBuffer(text),
+            keyRSAToArrayBuffer(text),
             {
                 name: "RSA-OAEP",
                 hash: "SHA-256"
@@ -124,10 +134,34 @@ fetch("../server/scripts/keys/cm-innovationlab.it_public_.pub")
                 cryptoKey = promiseKey;
             })
         })
-    .catch((e) => console.error("importKey: " + e));
+    .catch((e) => console.error("importPublicKey: " + e));
 
 
-function myEncrypt(jsonMsg){
+let loadedSymmetricKey
+ 
+fetch('../../keys/cm-innovationlab.it_aes.bin')
+    .then((res) =>   res.text())
+    .then((text ) => {
+        crypto.subtle.importKey(
+            "raw",
+            keyAESToArrayBuffer(text),
+            {
+                //hash: "SHA-256",
+                //length: 256
+                name: 'AES-CBC'
+            },
+            false,
+            ["encrypt", "decrypt"]
+            )
+            .then((promiseKey) => {
+                loadedSymmetricKey = promiseKey;
+            })
+        })
+    .catch((e) => console.error("importAESKey: " + e));
+
+
+
+function myRSAEncrypt(jsonMsg){
     window.crypto.subtle.encrypt(
         {
             name: "RSA-OAEP"
@@ -140,5 +174,21 @@ function myEncrypt(jsonMsg){
             document.getElementById("thirdDiv").innerHTML = byteArray;
             returnEncrypted = {"array": byteArray};
         })
-    .catch((e) => console.error("myEncrypt: " + e));
+    .catch((e) => console.error("myRSAEncrypt: " + e));
+}
+
+function myAESEncrypt(jsonMsg){
+    window.crypto.subtle.encrypt(
+        {
+            name: "AES-CBC"
+        },
+        loadedSymmetricKey,
+        new TextEncoder().encode(jsonMsg)
+        )
+        .then((res) =>{
+            var byteArray = new Uint8Array(res);
+            document.getElementById("thirdDiv").innerHTML = byteArray;
+            returnEncrypted = {"array": byteArray};
+        })
+    .catch((e) => console.error("myAESEncrypt: " + e));
 }

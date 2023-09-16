@@ -1,3 +1,12 @@
+
+
+//test con 'node test.js'
+
+
+
+
+
+
 const crypto = require('crypto');
 const NodeRSA = require('node-rsa');
 
