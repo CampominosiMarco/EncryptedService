@@ -47,39 +47,17 @@ Run python script:
 py -3 .\test_enc_dec.py
 ```
 # Whistleblowing
-Now let's try to help who need to encrypt information or verify signature with some real cases.<br/>
+Now let's try to help who needs to encrypt information or verify signature with some real cases.<br/>
 
+Inside whistleblowing folder, you can find a simulation to understand better kow it works.
+* HTML, is so simple and it helps to follow the right flow.
+* Javascript, to understand this script you need to know:
+  1. bytes array, base64, text convertion
+  2. importing key (please read [mozilla.org: importKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey))
+  3. payload encryption (please read [mozilla.org: encrypt](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt))
+  4. AJAX and XMLHttpRequest
+* Python: this is a script that uses Flask and checks login information from client or get message text. To improve security, client and server, use a AES key (please read [wikipedia.org: Advanced_Encryption_Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)) to encrypt and decrypt payload message. To run this script on server:
 
-
+```bash
 flask --app endPoint run --host=0.0.0.0 --port 5002
-
-
-
-
-
-https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey
-
-
-
-https://pypi.org/project/requests-jwt/
-
-
-
-
-
-
-
-ESEMPIO CONJ NODE JS
-
-
-      https://nodejs.org/it
-      npm install node-rsa
-
-
-      Il codice che hai condiviso sembra essere corretto e segue la procedura corretta per cifrare i dati JSON con AES e firmarli digitalmente con RSA. Ecco una piccola spiegazione delle fasi principali:
-
-      Genera una chiave RSA per la firma digitale e estrai la chiave pubblica RSA.
-      Cifra l'username e la password utilizzando una chiave simmetrica AES e un vettore di inizializzazione casuale.
-      Firma digitalmente i dati cifrati con la chiave privata RSA.
-      Verifica la firma digitale utilizzando la chiave pubblica RSA.
-      Se la firma è verificata con successo, decifra i dati cifrati con la chiave simmetrica AES per ottenere il JSON originale.
+```

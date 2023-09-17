@@ -89,6 +89,7 @@ fetch('../../keys/cm-innovationlab.it_aes.bin')
 ENCRYPTION
 ********************************************************************************************/
 
+//unused
 function myRSAEncrypt(jsonMsg, destination){
     window.crypto.subtle.encrypt(
         {
@@ -142,19 +143,23 @@ function sendPostRequest(){
         if (this.readyState == 4 && this.status == 200) {
             const obj = JSON.parse(this.responseText);
 
-            my_JWT = obj.content.token;
+            if ("error" in obj) {
+                document.getElementById("secondDiv").innerHTML = obj.error;
+            } else {
+                my_JWT = obj.content.token;
 
-            divOutput = "{<br/>&emsp;iss: " + obj.content.iss + ",<br/>" + 
-            //    "&emsp;iat: " + obj.content.iat + ",<br/>" + 
-            //    "&emsp;exp: " + obj.content.exp + ",<br/>" + 
-                "&emsp;sub: " + obj.content.sub + ",<br/>" + 
-                "&emsp;token: " + splitLongString(obj.content.token, 4) + "}"
-
-            document.getElementById("secondDiv").innerHTML = divOutput;
-            document.getElementById("secondField").removeAttribute("hidden");
-            document.getElementById("thirdField").removeAttribute("hidden");
-
-            myAESEncrypt(myJSONMessage, "thirdDiv");
+                divOutput = "{<br/>&emsp;iss: " + obj.content.iss + ",<br/>" + 
+                //    "&emsp;iat: " + obj.content.iat + ",<br/>" + 
+                //    "&emsp;exp: " + obj.content.exp + ",<br/>" + 
+                    "&emsp;sub: " + obj.content.sub + ",<br/>" + 
+                    "&emsp;token: " + splitLongString(obj.content.token, 4) + "}"
+    
+                document.getElementById("secondDiv").innerHTML = divOutput;
+                document.getElementById("secondField").removeAttribute("hidden");
+                document.getElementById("thirdField").removeAttribute("hidden");
+    
+                myAESEncrypt(myJSONMessage, "thirdDiv");
+            }
         }
     }
     xhttp.open("POST", url);
@@ -172,25 +177,22 @@ function sendRequestWithJWT(){
         if (this.readyState == 4 && this.status == 200) {
             const obj = JSON.parse(this.responseText);
 
-            document.getElementById("fourthDiv").innerHTML = obj.array_resp;
-            document.getElementById("fourthField").removeAttribute("hidden");
+            if ("error" in obj) {
+                document.getElementById("fourthDiv").innerHTML = obj.error;
+            } else {
+                document.getElementById("fourthDiv").innerHTML = 
+                "&#9194; <b><span style='color:green'>Reverse message from server side: </span></b>" + obj.content + "<br/>" +
+                "&#11088; <b><span style='color:green'>Token request owner: </span></b>" + obj.request_owner + "<br/>" +
+                "&#8987; <b><span style='color:green'>Token remaining time: </span></b>" + obj.remaining_time + " minutes";
+                document.getElementById("fourthField").removeAttribute("hidden");
+            }
         }
     }
     xhttp.open("POST", url);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.setRequestHeader('Authorization', 'Bearer ' + my_JWT);
-
-
-//encrypt 
-
     xhttp.send(JSON.stringify(encryptedData));
-
 }
-
-
-
-
-
 
 /********************************************************************************************
 EXTRA
