@@ -138,7 +138,7 @@ function sendPostRequest(){
     document.getElementById("fourthField").setAttribute("hidden", "");
             
     var xhttp = new XMLHttpRequest();
-    var url = "http://127.0.0.1:5002/login";
+    var url = "https://www.cm-innovationlab.it:5002/login";
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const obj = JSON.parse(this.responseText);
@@ -172,7 +172,7 @@ function sendRequestWithJWT(){
     document.getElementById("fourthField").setAttribute("hidden", "");
             
     var xhttp = new XMLHttpRequest();
-    var url = "http://127.0.0.1:5002/message_receiver";
+    var url = "https://www.cm-innovationlab.it:5002/message_receiver";
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const obj = JSON.parse(this.responseText);
