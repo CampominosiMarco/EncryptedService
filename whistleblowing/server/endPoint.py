@@ -2,10 +2,16 @@ from flask import Flask, request
 from flask_cors import CORS
 
 import json
+import base64
+import array
+import numpy as np
 
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_int_from_datetime
 
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+#ONLY for this files configuration, you can import script how you want
 import os
 import sys
 server_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +21,17 @@ sys.path.append(upper_parent_dir)
 
 from encode import getEncodedPayload
 from decode import decode_token
+from keys.keys_reader_writer import *
+
+#This is AES key to encrypt or decrypt payload
+aes_key_byte_array = base64.urlsafe_b64decode(read_AES_Key())
+
+#Function to convert dictionary from payload in byte array
+def convertDictionaryToByteArray(dict):
+    output_lists = []
+    for key, value in dict.items():
+        output_lists.append(value)
+    return array.array('B', output_lists)
 
 myEndPoint = Flask(__name__)
 cors = CORS(myEndPoint)
@@ -24,75 +41,70 @@ def test():
     return {"status": "Service Up!"}, 200
 
 
-
-
-#from Crypto.Cipher import AES
-import base64
-
 @myEndPoint.route("/login", methods = ['POST'])
 def login():    #of course this is only a test :)
     json_data = request.get_json()
 
+    if len(json_data) == 2 and "byte_array" in json_data and "iv" in json_data:
 
-
-
-
-    try:
-
-        byte_array = json_data['byte_array']
-        byte_array_string = json_data['byte_array_string']
-
-        # Decodifica la stringa cifrata dalla base64
-        ciphertext = base64.b64decode(byte_array_string)
-
-        print(ciphertext)
-
-
-        # Inizializza l'oggetto AES con la modalità ECB e la chiave segreta
-  #      cipher = AES.new(secret_key, AES.MODE_ECB)
-
-        # Decodifica il byte array utilizzando AES
-   #     decrypted_byte_array = cipher.decrypt(bytes(byte_array.values()))
-
-        # Restituisci il byte array decodificato come risposta
-   #     return jsonify({'decrypted_byte_array': decrypted_byte_array.decode('utf-8')})
-
-    except Exception as e:
-        pass
-       # return jsonify({'error': str(e)}), 500
-
-
-
-
-
-
-
-
-    if (json_data['username'] == "marco.campominosi" and json_data['password'] == "enjoy"):
-
-        now = datetime.now(timezone.utc)
-        expiration = get_int_from_datetime(now + timedelta(minutes=30))
-
-        token = getEncodedPayload({'exp': expiration,
-                                   'username': json_data['username'],
-                                   'user_id': 7285,
-                                   'admin': True})
+        byte_array = json_data["byte_array"]
+        iv = json_data["iv"]
         
-        response_payload = {
-                            'iss': 'http://www.cm-innovationlab.it:5002',
-                            'sub': 'encryptionTest',
-                            #'iat': get_int_from_datetime(now),
-                            #'exp': expiration,
-                            'token': token
-                            }
-        return {"content": response_payload}, 200
-    return {"error": "Login Error!"}, 401
+        if isinstance(byte_array, dict) and isinstance(iv, dict):
+
+            try:
+                byte_array = convertDictionaryToByteArray(byte_array)
+                iv = convertDictionaryToByteArray(iv)
+
+                cipher = Cipher(algorithms.AES(aes_key_byte_array), modes.CBC(iv))
+                decryptor = cipher.decryptor()
+
+                decrypted_data = decryptor.update(byte_array) + decryptor.finalize()
+                decrypted_data = decrypted_data[:-1]    #remove last '\x01'
+
+                json_str = decrypted_data.decode('utf-8')
+                jsonMsg = json.loads(json_str)
+
+                if (jsonMsg['username'] == "marco.campominosi" and jsonMsg['password'] == "enjoy"):
+
+                    now = datetime.now(timezone.utc)
+                    expiration = get_int_from_datetime(now + timedelta(minutes=30))
+
+                    token = getEncodedPayload({'exp': expiration,
+                                            'username': jsonMsg['username'],
+                                            'user_id': 7285,
+                                            'admin': True})
+                    
+                    response_payload = {
+                                        'iss': 'http://www.cm-innovationlab.it:5002',
+                                        'sub': 'encryptionTest',
+                                        #'iat': get_int_from_datetime(now),
+                                        #'exp': expiration,
+                                        'token': token
+                                        }
+                    return {"content": response_payload}, 200
+                return {"error": "Login Error!"}, 401
+
+            except Exception as e:
+                return {"error": str(e)}, 500
+            
+        else:
+            return {"error": "Check payload type!"}, 400
+        
+    else:
+        return {"error": "Check payload!"}, 400
 
 
 
 
 
-import numpy as np
+
+
+
+
+
+
+
 
 
 @myEndPoint.route("/message_receiver", methods = ['POST'])
@@ -139,96 +151,3 @@ def token_validation(token_passed):
         return {"error" : "An error occured!" + str(e)}, 500
 
 
-
-'''
-
-
-
-
-
-#chatgpt
-
-
-import json
-import os
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hmac
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding as sym_padding
-
-
-
-
-username = 'pino'
-password = 'strampalato'
-user_data = {'username': username, 'password': password}
-json_text = json.dumps(user_data)
-
-print('\nUser Data:', user_data, ' - JSON Text:', json_text)
-
-iv = os.urandom(16)  # Genera un vettore di inizializzazione (IV) casuale
-cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv), backend=default_backend())
-encryptor = cipher.encryptor()
-
-# Salva l'IV insieme ai dati cifrati
-encrypted_data = iv + encryptor.update(json_text.encode('utf-8')) + encryptor.finalize()
-
-# 3. Firma digitalmente il JSON cifrato con la chiave privata RSA
-signature = private_key.sign(
-    encrypted_data,
-    padding.PKCS1v15(),
-    hashes.SHA256()
-)
-
-# Ora hai il JSON cifrato, la firma digitale e la chiave pubblica RSA per la verifica
-print('\nIV:', iv)
-print('\nIV concat a JSON cifrato:', encrypted_data)
-print('\nFirma digitale:', signature)
-print('\nChiave pubblica RSA:', public_key)
-
-# Per verificare la firma digitale con la chiave pubblica RSA
-is_verified = public_key.verify(
-    signature,
-    encrypted_data,
-    padding.PKCS1v15(),
-    hashes.SHA256()
-)
-
-if is_verified:
-    print('\nLa firma è verificata!')
-    # 2. La firma è valida, ora puoi decifrare i dati cifrati con la chiave simmetrica AES
-
-    iv_decryption = encrypted_data[:16]
-    encrypted_text = encrypted_data[16:]
-
-    cipher = Cipher(algorithms.AES(loaded_symmetric_key), modes.CFB(iv_decryption), backend=default_backend())
-    decryptor = cipher.decryptor()
-    decrypted_data = decryptor.update(encrypted_text) + decryptor.finalize()
-
-    # 3. Hai ora il JSON originale
-    original_data = json.loads(decrypted_data.decode('utf-8'))
-
-    print('\nDati originali:', original_data)
-else:
-    print('\nFirma non valida. I dati potrebbero essere stati alterati.')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''

@@ -8,7 +8,6 @@ let my_JWT
 let rsaPublicCriptoKey
 let aesCriptoKey
 let encryptedData = {};
-const iv = window.crypto.getRandomValues(new Uint8Array(16));   //Init random vector 16 byte
 
 /********************************************************************************************
 KEYS READER
@@ -96,31 +95,34 @@ function myRSAEncrypt(jsonMsg, destination){
             name: "RSA-OAEP"
         },
         rsaPublicCriptoKey,
-        new TextEncoder().encode(jsonMsg)
+        new TextEncoder().encode(JSON.stringify(jsonMsg))
         )
         .then((res) =>{
             var byteArray = new Uint8Array(res);
             var byteArrayString = fromByteArrayToString(byteArray);
-            document.getElementById(destination).innerHTML = byteArrayString;
-            encryptedData = {"byte_array": byteArray, "byte_array_string": byteArrayString};
+            document.getElementById(destination).innerHTML = splitLongString(byteArrayString, 0);
+            encryptedData = {"byte_array": byteArray};
         })
     .catch((e) => console.error("myRSAEncrypt: " + e));
 }
 
 function myAESEncrypt(jsonMsg, destination){
+
+    const iv = window.crypto.getRandomValues(new Uint8Array(16))
+
     window.crypto.subtle.encrypt(
         {
             name: "AES-CBC",
             iv: iv
         },
         aesCriptoKey,
-        new TextEncoder().encode(jsonMsg)
+        new TextEncoder().encode(JSON.stringify(jsonMsg))
         )
         .then((res) =>{
             var byteArray = new Uint8Array(res);
             var byteArrayString = fromByteArrayToString(byteArray);
-            document.getElementById(destination).innerHTML = byteArrayString;
-            encryptedData = {"byte_array": byteArray, "byte_array_string": byteArrayString};
+            document.getElementById(destination).innerHTML = splitLongString(byteArrayString, 0);
+            encryptedData = {"byte_array": byteArray, "iv": iv};
         })
     .catch((e) => console.error("myAESEncrypt: " + e));
 }
@@ -142,39 +144,26 @@ function sendPostRequest(){
 
             my_JWT = obj.content.token;
 
-            visibleCode = "<br/>"
-            splitted = obj.content.token.match(/.{1,50}/g) ?? [];
-
-            for (i = 0; i < splitted.length; i++) {
-                visibleCode += "&emsp;&emsp;&emsp;&emsp;" + splitted[i] + "<br/>";
-            }
-
             divOutput = "{<br/>&emsp;iss: " + obj.content.iss + ",<br/>" + 
             //    "&emsp;iat: " + obj.content.iat + ",<br/>" + 
             //    "&emsp;exp: " + obj.content.exp + ",<br/>" + 
                 "&emsp;sub: " + obj.content.sub + ",<br/>" + 
-                "&emsp;token: " + visibleCode + "}"
+                "&emsp;token: " + splitLongString(obj.content.token, 4) + "}"
 
             document.getElementById("secondDiv").innerHTML = divOutput;
             document.getElementById("secondField").removeAttribute("hidden");
             document.getElementById("thirdField").removeAttribute("hidden");
+
+            myAESEncrypt(myJSONMessage, "thirdDiv");
         }
     }
     xhttp.open("POST", url);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.send(JSON.stringify(encryptedData));  //JSON.stringify(myLoginJSON)
+    xhttp.send(JSON.stringify(encryptedData));
 }
-
-
-
-
-
-
-
 
 function sendRequestWithJWT(){
     
-
     document.getElementById("fourthField").setAttribute("hidden", "");
             
     var xhttp = new XMLHttpRequest();
@@ -203,5 +192,19 @@ function sendRequestWithJWT(){
 
 
 
+/********************************************************************************************
+EXTRA
+********************************************************************************************/
 
+function splitLongString(inputString, tabs){
+    visibleCode = "<br/>"
+    splitted = inputString.match(/.{1,50}/g) ?? [];
 
+    for (i = 0; i < splitted.length; i++) {
+        for (t = 0; t < tabs; t++){
+            visibleCode += "&emsp;"
+        }
+        visibleCode += splitted[i] + "<br/>";
+    }
+    return visibleCode;
+}
